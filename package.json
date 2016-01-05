@@ -1,0 +1,30 @@
+{
+  "name": "vq-mssql",
+  "version": "1.0.0",
+  "description": "A simple wrapper for the MSSQL-Server library [node-sqlserver-v8](https://github.com/TimelordUK/node-sqlserver-v8)",
+  "main": "index.js",
+  "scripts": {
+    "test": "tap test/tap.*.js"
+  },
+  "author": "Fabian Roloff <fabian.roloff@vocatus.de>",
+  "license": "ISC",
+  "keywords": [
+    "mssql",
+    "sqlserver"
+  ],
+  "dependencies": {
+    "msnodesqlv8": "^0.1.35",
+    "q": "^1.4.1"
+  },
+  "devDependencies": {
+    "tap": "^2.3.3",
+    "winston": "^2.1.0"
+  },
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/Miramac/vq-mssql.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Miramac/vq-mssql/issues"
+  }
+}
