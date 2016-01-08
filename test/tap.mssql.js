@@ -7,7 +7,7 @@ var connectionString =  `Driver={SQL Server Native Client 11.0};Server=db1-muc\\
 
 winston.level = 'error';
 var sql = new MsSqlConnection(connectionString);
-sql.logger = winston.log;
+sql.setLogger(winston.log);
 
 
 tap.test("Test select query", function(t) {
@@ -34,6 +34,14 @@ tap.test("Test select query with parameter", function(t) {
     })
 })
 
+/** test fails...?
+tap.test("Test sync select query", function(t) {
+    var result = sql.querySync('SELECT id FROM dbo.Table1 where id=1');
+    t.same([{id:1}], result);
+    t.end()
+})
+**/ 
+
 tap.test("Test select query with text parameter", function(t) {
     sql.query('SELECT id FROM dbo.Table1 where Col1=?', ['Col1'])
     .then(function(data) { 
@@ -45,8 +53,6 @@ tap.test("Test select query with text parameter", function(t) {
         t.end()
     })
 })
-
-
 
 tap.test("Test procedure 1", function(t) {
     sql.procedure('dbo.sp_test1')
