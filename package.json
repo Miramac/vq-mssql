@@ -1,7 +1,7 @@
 {
   "name": "vq-mssql",
-  "version": "1.0.1",
-  "description": "A simple wrapper for the MSSQL-Server library [node-sqlserver-v8](https://github.com/TimelordUK/node-sqlserver-v8)",
+  "version": "1.0.2",
+  "description": "A simple wrapper for the MSSQL-Server node-sqlserver-v8 library",
   "main": "index.js",
   "scripts": {
     "test": "tap test/tap.*.js"
@@ -13,11 +13,11 @@
     "sqlserver"
   ],
   "dependencies": {
-    "msnodesqlv8": "^0.1.35"
+    "msnodesqlv8": "^0.1.39"
   },
   "devDependencies": {
     "tap": "^2.3.3",
-    "winston": "^2.1.0"
+    "winston": "^2.2.0"
   },
   "repository": {
     "type": "git",
