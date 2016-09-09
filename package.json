@@ -1,6 +1,6 @@
 {
   "name": "vq-mssql",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "A simple wrapper for the MSSQL-Server node-sqlserver-v8 library",
   "main": "index.js",
   "scripts": {
@@ -13,7 +13,9 @@
     "sqlserver"
   ],
   "dependencies": {
-    "msnodesqlv8": "^0.1.39"
+    "deasync": "^0.1.7",
+    "lodash": "^4.15.0",
+    "msnodesqlv8": "^0.2.8"
   },
   "devDependencies": {
     "tap": "^2.3.3",

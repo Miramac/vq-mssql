@@ -14,7 +14,7 @@ npm install vq-mssql --save
 
 ```javascript
 var MsSqlConnection = require('vq-mssql');
-var connectionString = `Driver={SQL Server Native Client 11.0};Server=db1-muc\\SQL5;Database=Database_1;Trusted_Connection={Yes};`
+var connectionString = `Driver={SQL Server Native Client 11.0};Server=localhost;Database=MyDatabase;Trusted_Connection={Yes};`
 
 var db1 = new MsSqlConnection(connectionString);
 
@@ -58,7 +58,7 @@ var db1 = new MsSqlConnection(`Driver={SQL Server Native Client 11.0};Server=db1
 var db1 = new MsSqlConnection({
   connectionSettings: {
     driver: '{SQL Server Native Client 11.0}',
-    server: 'db1-muc\\SQL5',
+    server: 'localhost\\SQL5',
     database: 'Database_1',
     useTrustedConnection: true
   }
@@ -67,7 +67,7 @@ var db1 = new MsSqlConnection({
 var db2 = new MsSqlConnection({
   connectionSettings: {
     driver: '{SQL Server Native Client 11.0}',
-    server: 'db1-muc\\SQL5',
+    server: 'localhost\\SQL5',
     database: 'Database_2',
     dbUser: '...',
     dbPassword: '...'
@@ -77,7 +77,7 @@ var db2 = new MsSqlConnection({
 
 
 ## Connection
-### .query(queryStr [, source] [, callback])
+### .query(queryStr [, parameters] [, callback])
 
 ```javascript
 var db1 = new MsSqlConnection(connectionString);
@@ -168,7 +168,7 @@ db1.bulkInsert('dbo.Table1', [{
 Stored Procedure support
 ```javascript
 // without parameters
-sql.procedure('dbo.sp_test1')
+db1.procedure('dbo.sp_test1')
 .then(function (data) {
   t.same([{col1: 'Test1'}], data.result)
   t.end()
@@ -179,7 +179,7 @@ sql.procedure('dbo.sp_test1')
 })
 
 // with 1 parameter 
-sql.proc('[dbo].[sp_test2]', 'A test')
+db1.proc('[dbo].[sp_test2]', 'A test')
 .then((result) => {
   console.log(result)
 })
@@ -188,12 +188,24 @@ sql.proc('[dbo].[sp_test2]', 'A test')
 })
 
 // with 2 or more parameters
-sql.proc('[dbo].[sp_test3]', [123, 987])
+db1.proc('[dbo].[sp_test3]', [123, 987])
 .then((result) => {
   console.log(result)
 })
 .catch((err) => {
   console.error(err)
 })
+```
 
+## Synchronized queries
+With the power of the DeAsync.js module (https://github.com/abbr/deasync) 
+
+### querySync(queryStr [, parameters])
+```javascript
+try {
+  var result = db1.querySync('SELECT id FROM dbo.Table1 where id=?', sql.Int(1))
+  console.log(result)
+} catch (err) {
+  console.error(err)
+}
 ```

@@ -8,11 +8,11 @@ var database = 'ZI00_UnitTests'
 var connectionString = `Driver={SQL Server Native Client 11.0};Server=${server};Database=${database};Trusted_Connection={Yes};`
 
 winston.level = 'error'
-var sql = new MsSqlConnection(connectionString)
-sql.setLogger(winston.log)
+var connection = new MsSqlConnection(connectionString)
+connection.setLogger(winston.log)
 
 tap.test('Test select query', function (t) {
-  sql.query('SELECT id FROM dbo.Table1 where id=1')
+  connection.query('SELECT id FROM dbo.Table1 where id=1')
     .then(function (data) {
       t.same([{id: 1}], data)
       t.end()
@@ -24,7 +24,7 @@ tap.test('Test select query', function (t) {
 })
 
 tap.test('Test select query with parameter', function (t) {
-  sql.query('SELECT id FROM dbo.Table1 where id=?', sql.Int(1))
+  connection.query('SELECT id FROM dbo.Table1 where id=?', connection.Int(1))
     .then(function (data) {
       t.same([{id: 1}], data)
       t.end()
@@ -36,7 +36,7 @@ tap.test('Test select query with parameter', function (t) {
 })
 
 tap.test('Test select query with text parameter', function (t) {
-  sql.query('SELECT id FROM dbo.Table1 where Col1=?', ['Col1'])
+  connection.query('SELECT id FROM dbo.Table1 where Col1=?', ['Col1'])
     .then(function (data) {
       t.same([{id: 1}], data)
       t.end()
@@ -48,7 +48,7 @@ tap.test('Test select query with text parameter', function (t) {
 })
 
 tap.test('Test procedure 1', function (t) {
-  sql.procedure('dbo.sp_test1')
+  connection.procedure('dbo.sp_test1')
     .then(function (data) {
       t.same([{col1: 'Test1'}], data.result)
       t.end()
@@ -60,7 +60,7 @@ tap.test('Test procedure 1', function (t) {
 })
 
 tap.test('Test procedure 2', function (t) {
-  sql.procedure('dbo.sp_test2', 'Test2')
+  connection.procedure('dbo.sp_test2', 'Test2')
     .then(function (data) {
       t.same([{col1: 'Test2'}], data.result)
       t.end()
@@ -72,7 +72,7 @@ tap.test('Test procedure 2', function (t) {
 })
 
 tap.test('Test procedure 3', function (t) {
-  sql.procedure('dbo.sp_test3', [11, 22])
+  connection.procedure('dbo.sp_test3', [11, 22])
     .then(function (data) {
       t.same([{num1: 11, num2: 22}], data.result)
       t.end()
@@ -84,7 +84,7 @@ tap.test('Test procedure 3', function (t) {
 })
 
 tap.test('Test transaction', function (t) {
-  sql.transaction(`
+  connection.transaction(`
         INSERT INTO dbo.Table1 (id, col1) values (-9991, 'test 1')
         INSERT INTO dbo.Table1 (id, col1) values (-9992, 'test 2')
         INSERT INTO dbo.Table1 (id, col1) values (-9993, 'test 3')
@@ -92,11 +92,11 @@ tap.test('Test transaction', function (t) {
         INSERT INTO dbo.Table1 (id, col1) values (-9995, 'test 5')
     `)
     .then(function () {
-      sql.query('DELETE dbo.Table1 where id in(-9991, -9992, -9993, -9994, -9995)', 'cleanup')
+      connection.query('DELETE dbo.Table1 where id in(-9991, -9992, -9993, -9994, -9995)', 'cleanup')
       t.end()
     })
     .catch(function (err) {
-      sql.query('DELETE dbo.Table1 where id in(-9991, -9992, -9993, -9994, -9995)', 'cleanup')
+      connection.query('DELETE dbo.Table1 where id in(-9991, -9992, -9993, -9994, -9995)', 'cleanup')
       t.error(err)
       t.end()
     })
@@ -110,20 +110,20 @@ tap.test('Test transaction with queries array', function (t) {
     'INSERT INTO dbo.Table1 (id, col1) values (-9994, \'test 4\')',
     'INSERT INTO dbo.Table1 (id, col1) values (-9995, \'test 5\')'
   ]
-  sql.transaction(queries)
+  connection.transaction(queries)
     .then(function () {
-      sql.query('DELETE dbo.Table1 where id in(-9991, -9992, -9993, -9994, -9995)', 'cleanup')
+      connection.query('DELETE dbo.Table1 where id in(-9991, -9992, -9993, -9994, -9995)', 'cleanup')
       t.end()
     })
     .catch(function (err) {
-      sql.query('DELETE dbo.Table1 where id in(-9991, -9992, -9993, -9994, -9995)', 'cleanup')
+      connection.query('DELETE dbo.Table1 where id in(-9991, -9992, -9993, -9994, -9995)', 'cleanup')
       t.error(err)
       t.end()
     })
 })
 
 tap.test('Test bulk', function (t) {
-  sql.bulkInsert('dbo.Table1', [{
+  connection.bulkInsert('dbo.Table1', [{
     ID: -9981,
     Col1: 'col1 9981',
     Col2: 'col2 9981'
@@ -145,12 +145,71 @@ tap.test('Test bulk', function (t) {
     Col2: 'col2 9985'
   }])
     .then(function () {
-      sql.query('DELETE dbo.Table1 where id in(-9981, -9982, -9983, -9984, -9985)', 'cleanup')
+      connection.query('DELETE dbo.Table1 where id in(-9981, -9982, -9983, -9984, -9985)', 'cleanup')
       t.end()
     })
     .catch(function (err) {
-      sql.query('DELETE dbo.Table1 where id in(-9981, -9982, -9983, -9984, -9985)', 'cleanup')
+      connection.query('DELETE dbo.Table1 where id in(-9981, -9982, -9983, -9984, -9985)', 'cleanup')
       t.error(err)
       t.end()
     })
+})
+
+tap.test('Test sync', function (t) {
+
+  try {
+    var result1 = connection.querySync('select 1 as col1')
+    t.same([{col1: 1}], result1)
+
+    var result2 = connection.querySync('SELECT id FROM dbo.Table1 where id=1')
+    t.same([{id: 1}], result2)
+    t.end()
+  } catch (err) {
+    t.error(err)
+    t.end()
+  }
+})
+
+tap.test('Test sync select query', function (t) {
+  try {
+    var result = connection.querySync('SELECT id FROM dbo.Table1 where id=1')
+    t.same([{id: 1}], result)
+    t.end()
+  } catch (err) {
+    t.error(err)
+    t.end()
+  }
+})
+
+tap.test('Test sync select query with parameter', function (t) {
+  try {
+    var result = connection.querySync('SELECT id FROM dbo.Table1 where id=?', connection.Int(1))
+    t.same([{id: 1}], result)
+    t.end()
+  } catch (err) {
+    t.error(err)
+    t.end()
+  }
+})
+
+tap.test('Test sync select query with text parameter', function (t) {
+  try {
+    var result = connection.querySync('SELECT id FROM dbo.Table1 where Col1=?', ['Col1'])
+    t.same([{id: 1}], result)
+    t.end()
+  } catch (err) {
+    t.error(err)
+    t.end()
+  }
+})
+
+tap.test('Test sync select query with text parameter', function (t) {
+  try {
+    var result = connection.querySync('SELECT ? as id', connection.Int(1))
+    t.same([{id: 1}], result)
+    t.end()
+  } catch (err) {
+    t.error(err)
+    t.end()
+  }
 })
