@@ -1,6 +1,6 @@
 {
   "name": "vq-mssql",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "A simple wrapper for the MSSQL-Server node-sqlserver-v8 library",
   "main": "index.js",
   "scripts": {
